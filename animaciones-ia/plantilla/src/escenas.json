@@ -1,0 +1,9 @@
+{
+  "paleta": "noche",
+  "frases": [
+    { "id": "p01", "escena": "globo", "vista": { "lat": 19.4, "lon": -99.1, "zoom": 1.0 }, "puntos": [{ "lat": 19.4, "lon": -99.1 }], "claves": ["méxico"] },
+    { "id": "p02", "vista": { "lat": -33.9, "lon": 151.2, "zoom": 1.6 }, "ruta": { "de": [19.4, -99.1], "a": [-33.9, 151.2], "desde": "vuela" }, "puntos": [{ "lat": -33.9, "lon": 151.2, "en": "sídney" }], "claves": ["sídney"], "golpe": "sídney" },
+    { "id": "p03", "escena": "contador", "contador": { "desde": 0, "hasta": 13000, "unidad": "km", "inicia": "trece", "termina": "kilómetros" }, "juntar": [["trece mil kilómetros", "13,000 KM"]] },
+    { "id": "p04", "escena": "palabra", "claves": ["planeta"], "golpe": "planeta" }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mi-video-animado",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Plantilla de video vertical animado (plugin Animaciones con IA)",
+  "scripts": {
+    "estudio": "remotion studio src/index.ts",
+    "cuadro": "remotion still src/index.ts Video salida/cuadro.png",
+    "render": "remotion render src/index.ts Video salida/render.mp4 --codec h264 --crf 18 --color-space=bt709 --muted",
+    "cuadros": "node cuadros.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.535",
+    "@remotion/cli": "4.0.535",
+    "@remotion/renderer": "4.0.535",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.535"
+  }
+}

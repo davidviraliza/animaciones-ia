@@ -1,0 +1,14 @@
+{
+ "dur": 9.0,
+ "estimado": true,
+ "frases": [
+  {"id": "p01", "texto": "Esto es México.", "ini": 0.0, "fin": 1.3, "palabras": [
+   {"w": "Esto", "s": 0.0, "e": 0.3}, {"w": "es", "s": 0.3, "e": 0.5}, {"w": "México.", "s": 0.5, "e": 1.3}]},
+  {"id": "p02", "texto": "Si vuela hasta Sídney,", "ini": 1.45, "fin": 3.3, "palabras": [
+   {"w": "Si", "s": 1.45, "e": 1.6}, {"w": "vuela", "s": 1.6, "e": 2.0}, {"w": "hasta", "s": 2.0, "e": 2.4}, {"w": "Sídney,", "s": 2.4, "e": 3.3}]},
+  {"id": "p03", "texto": "recorre trece mil kilómetros.", "ini": 3.45, "fin": 5.6, "palabras": [
+   {"w": "recorre", "s": 3.45, "e": 3.9}, {"w": "trece", "s": 3.9, "e": 4.2}, {"w": "mil", "s": 4.2, "e": 4.4}, {"w": "kilómetros.", "s": 4.4, "e": 5.6}]},
+  {"id": "p04", "texto": "Media vuelta al planeta.", "ini": 5.8, "fin": 8.4, "palabras": [
+   {"w": "Media", "s": 5.8, "e": 6.2}, {"w": "vuelta", "s": 6.2, "e": 6.6}, {"w": "al", "s": 6.6, "e": 6.8}, {"w": "planeta.", "s": 6.8, "e": 8.4}]}
+ ]
+}
