@@ -35,6 +35,10 @@ Se detiene en cada paso para que apruebes: análisis → 3 temas → guion y 3 a
 
 Agentes que trae: **director-arte** (propone el estilo en 3 cuadros y arma las escenas) y **revisor** (revisa cuadro por cuadro, volumen y voz antes de enseñarte nada).
 
+## ¿Eres alumno del curso?
+
+Con tu código personal (`FAB-XXXX-XXXX-XXXX`) instalas **fabrica-ia**, la versión completa: escribe `/animaciones-ia:activar TU-CODIGO`. No necesitas GitHub.
+
 ## Si algo se atora
 - **Una descarga no avanza:** espera; si en 60 s no baja nada, se reintenta sola. Si falla 5 veces, revisa tu internet y repite el mismo comando: sigue donde se quedó.
 - **Un proceso no termina:** todo tiene tope de tiempo; se detiene solo y te dice dónde. Escríbele a Claude: «Se atoró. Detenlo, busca la causa, corrígelo y explícame en dos líneas».
