@@ -37,7 +37,7 @@ Agentes que trae: **director-arte** (propone el estilo en 3 cuadros y arma las e
 
 ## ¿Eres alumno del curso?
 
-Con tu código personal (`FAB-XXXX-XXXX-XXXX`) instalas **fabrica-ia**, la versión completa: escribe `/animaciones-ia:activar TU-CODIGO`. No necesitas GitHub.
+Con tu código personal (`FAB-XXXX-XXXX-XXXX`) este mismo plugin se actualiza a la **versión completa** (línea de 7 agentes, voz entrenada y más): escribe `/animaciones-ia:activar TU-CODIGO` y reinicia Claude. No necesitas GitHub.
 
 ## Si algo se atora
 - **Una descarga no avanza:** espera; si en 60 s no baja nada, se reintenta sola. Si falla 5 veces, revisa tu internet y repite el mismo comando: sigue donde se quedó.
