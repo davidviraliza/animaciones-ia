@@ -9,7 +9,7 @@
       "name": "animaciones-ia",
       "source": "./animaciones-ia",
       "description": "Haz videos verticales animados con Claude Code, como en el tutorial: analiza un enlace, guion con fuentes, tu voz clonada (o una voz ya hecha), estilo aprobado en 3 cuadros, revisor y música original.",
-      "version": "0.3.1"
+      "version": "0.3.2"
     }
   ]
 }

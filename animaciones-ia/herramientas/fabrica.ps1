@@ -183,6 +183,11 @@ try {
         Write-Output "  parte $($n + 1)/$($info.partes) lista"
     }
     if (-not (Test-Path (Join-Path $nuevo '.claude-plugin\marketplace.json'))) { throw 'La descarga llegó incompleta (falta marketplace.json).' }
+    # el zip del servidor quita la marca UTF-8 (BOM); sin ella PowerShell 5 lee mal los acentos de los .ps1
+    Get-ChildItem -Path $nuevo -Recurse -Filter *.ps1 | ForEach-Object {
+        $b = [IO.File]::ReadAllBytes($_.FullName)
+        if (-not ($b.Length -ge 3 -and $b[0] -eq 0xEF -and $b[1] -eq 0xBB -and $b[2] -eq 0xBF)) { [IO.File]::WriteAllBytes($_.FullName, [byte[]](0xEF, 0xBB, 0xBF) + $b) }
+    }
     # reemplazo: la versión anterior queda como respaldo hasta la siguiente actualización
     Borrar $anterior
     if (Test-Path $destino) { Move-Item $destino $anterior }
