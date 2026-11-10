@@ -2,7 +2,7 @@
 # y revisa que tu suscripción siga vigente. Si ya no lo está, regresa sola a la versión gratis.
 #   powershell -NoProfile -ExecutionPolicy Bypass -File fabrica.ps1 activar FAB-XXXX-XXXX-XXXX
 #   powershell -NoProfile -ExecutionPolicy Bypass -File fabrica.ps1 actualizar | estado | revisar | volver-gratis
-# No necesita GitHub: le pregunta al servidor de David si tu código es válido y baja la versión completa.
+# No necesita GitHub: le pregunta al servidor de David si tu código es válido y baja la versión mejorada.
 param(
     [Parameter(Position = 0)][ValidateSet('activar', 'actualizar', 'estado', 'revisar', 'volver-gratis')][string]$Accion = 'estado',
     [Parameter(Position = 1)][string]$Codigo = ''
@@ -47,10 +47,24 @@ function Pedir($params, $intentos = 3, $espera = 360) {
 }
 
 # ---------- Claude Code (comando claude) ----------
-$hayClaude = -not $env:FABRICA_IA_SIN_REGISTRAR -and (Get-Command claude -ErrorAction SilentlyContinue)
+# Quien solo usa la app de escritorio no tiene «claude» en el PATH: la app trae su propio claude.exe.
+function BuscarClaude {
+    $c = Get-Command claude -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($c) { return $c.Source }
+    if ($env:CLAUDE_PID) {                                   # el Claude que nos está corriendo ahora mismo
+        try { $p = (Get-Process -Id $env:CLAUDE_PID -ErrorAction Stop).Path; if ($p -and (Split-Path $p -Leaf) -match '^claude(\.exe)?$') { return $p } } catch {}
+    }
+    $raices = @("$env:LOCALAPPDATA\Claude-Data", "$env:APPDATA\Claude\claude-code", "$env:LOCALAPPDATA\AnthropicClaude", "$env:USERPROFILE\.local\bin") | Where-Object { Test-Path $_ }
+    $e = $raices | ForEach-Object { Get-ChildItem -Path $_ -Filter claude.exe -Recurse -Depth 5 -ErrorAction SilentlyContinue } |
+        Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    if ($e) { return $e.FullName }
+    return $null
+}
+$CLAUDE_EXE = if ($env:FABRICA_IA_SIN_REGISTRAR) { $null } else { BuscarClaude }
+$hayClaude = [bool]$CLAUDE_EXE
 function ClaudeCmd([string[]]$a) {
     $prev = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    try { $s = (& claude @a 2>&1 | ForEach-Object { "$_" }) -join "`n"; return @{ ok = ($LASTEXITCODE -eq 0); texto = $s } }
+    try { $s = (& $CLAUDE_EXE @a 2>&1 | ForEach-Object { "$_" }) -join "`n"; return @{ ok = ($LASTEXITCODE -eq 0); texto = $s } }
     finally { $ErrorActionPreference = $prev }
 }
 function CliJson([string[]]$a) {
@@ -84,7 +98,7 @@ function UsarFuente($fuente, $esCarpeta) {
 }
 
 function VolverGratis($motivo) {
-    # Quita la versión completa de esta PC y deja la gratis. Tus videos, voces y reglas no se tocan.
+    # Quita la versión mejorada de esta PC y deja la gratis. Tus videos, voces y reglas no se tocan.
     foreach ($d in @($destino, $anterior)) { Borrar $d }
     if (Test-Path $instalado) { Remove-Item $instalado -Force }
     $lic = LeerJson $licencia
@@ -92,30 +106,30 @@ function VolverGratis($motivo) {
     if ($hayClaude) {
         try { $v = UsarFuente $REPO_GRATIS $false } catch { $v = '' }
         if ($v) { return "VERSION_GRATIS: se regresó a animaciones-ia $v (gratis)." }
-        return "VERSION_GRATIS: se quitó la versión completa. Si animaciones-ia no aparece, en Claude escribe  /plugin marketplace add $REPO_GRATIS  y  /plugin install $PLUGIN"
+        return "VERSION_GRATIS: se quitó la versión mejorada. Si animaciones-ia no aparece, en Claude escribe  /plugin marketplace add $REPO_GRATIS  y  /plugin install $PLUGIN"
     }
-    return 'VERSION_GRATIS: se quitó la versión completa de esta PC.'
+    return 'VERSION_GRATIS: se quitó la versión mejorada de esta PC.'
 }
 
 # ---------- estado ----------
 if ($Accion -eq 'estado') {
     $i = LeerJson $instalado; $lic = LeerJson $licencia
-    if (-not $i) { Salir 'animaciones-ia versión completa: no está activada en esta PC (tienes la gratis). Usa: activar TU-CODIGO' 1 }
+    if (-not $i) { Salir 'animaciones-ia versión mejorada: no está activada en esta PC (tienes la gratis). Usa: activar TU-CODIGO' 1 }
     $v = if ($lic -and $lic.vence) { " Suscripción vigente hasta el $($lic.vence)." } else { '' }
     $u = if ($lic -and $lic.ultima_ok) { " Última revisión: $($lic.ultima_ok)." } else { '' }
-    Salir "animaciones-ia $($i.version) (versión completa) instalada el $($i.fecha).$v$u" 0
+    Salir "animaciones-ia $($i.version) (versión mejorada) instalada el $($i.fecha).$v$u" 0
 }
 
 # ---------- volver-gratis (a mano) ----------
 if ($Accion -eq 'volver-gratis') { Salir (VolverGratis 'a petición del usuario') 0 }
 
-# ---------- revisar (al abrir Claude; lo corre el hook de la versión completa) ----------
+# ---------- revisar (al abrir Claude; lo corre el hook de la versión mejorada) ----------
 if ($Accion -eq 'revisar') {
     $lic = LeerJson $licencia
     $aviso = '[animaciones-ia] '
     if (-not $lic -or -not $lic.codigo) {
         $r = VolverGratis 'sin código en esta PC'
-        Salir ($aviso + "Esta PC no tiene código de alumno, así que la versión completa no puede usarse aquí. $r Dile al usuario, en español, que cierre y vuelva a abrir Claude, y que si es alumno use /animaciones-ia:activar con su código. No uses los comandos de la versión completa en esta sesión.") 0
+        Salir ($aviso + "Esta PC no tiene código de alumno, así que la versión mejorada no puede usarse aquí. $r Dile al usuario, en español, que cierre y vuelva a abrir Claude, y que si es alumno use /animaciones-ia:activar con su código. No uses los comandos de la versión mejorada en esta sesión.") 0
     }
     if ($lic.ultima_ok) {
         try { $horas = ((Get-Date) - [datetime]$lic.ultima_ok).TotalHours } catch { $horas = 9999 }
@@ -124,7 +138,7 @@ if ($Accion -eq 'revisar') {
     try { $r = Pedir @{ accion = 'estado'; codigo = $lic.codigo; maquina = $maquina } 1 20 }
     catch {
         if ($horas -gt 24 * $DIAS_SIN_INTERNET) {
-            Salir ($aviso + "Hace más de $DIAS_SIN_INTERNET días que no se puede revisar la suscripción del usuario (sin internet o el servidor no responde). Dile, en español, que se conecte a internet y vuelva a abrir Claude. Hasta que se revise, no uses los comandos de la versión completa.") 0
+            Salir ($aviso + "Hace más de $DIAS_SIN_INTERNET días que no se puede revisar la suscripción del usuario (sin internet o el servidor no responde). Dile, en español, que se conecte a internet y vuelva a abrir Claude. Hasta que se revise, no uses los comandos de la versión mejorada.") 0
         }
         Salir '' 0
     }
@@ -138,7 +152,7 @@ if ($Accion -eq 'revisar') {
     }
     if ($r.revertir) {
         $res = VolverGratis ([string]$r.motivo)
-        Salir ($aviso + "La versión completa ya no está vigente: $($r.motivo) $res Díselo al usuario en español, con calma: que cierre y vuelva a abrir Claude, que sigue teniendo la versión gratis, y que si renueva en Skool le escriba a David. No uses los comandos de la versión completa en esta sesión.") 0
+        Salir ($aviso + "La versión mejorada ya no está vigente: $($r.motivo) $res Díselo al usuario en español, con calma: que cierre y vuelva a abrir Claude, que sigue teniendo la versión gratis, y que si renueva en Skool le escriba a David. No uses los comandos de la versión mejorada en esta sesión.") 0
     }
     Salir ($aviso + "Aviso sobre la suscripción: $($r.motivo)") 0
 }
@@ -168,7 +182,7 @@ if ($Accion -eq 'actualizar' -and (Test-Path $instalado)) {
     }
 }
 
-Write-Output "Hola $($info.nombre). Bajando animaciones-ia $($info.version), versión completa ($([math]::Round($info.bytes / 1MB, 1)) MB en $($info.partes) partes)..."
+Write-Output "Hola $($info.nombre). Bajando animaciones-ia $($info.version), versión mejorada ($([math]::Round($info.bytes / 1MB, 1)) MB en $($info.partes) partes)..."
 $tmp = Join-Path $datos ('descarga_' + [guid]::NewGuid().ToString('N').Substring(0, 8))
 $nuevo = Join-Path $tmp 'plugin'
 New-Item -ItemType Directory -Force -Path $nuevo | Out-Null
@@ -201,7 +215,7 @@ GuardarJson $instalado ([pscustomobject]@{ version = $info.version; sha = $info.
 
 if ($hayClaude) {
     try { $v = UsarFuente $destino $true } catch { $v = ''; $err = $_.Exception.Message }
-    if ($v -eq $info.version) { Salir "LISTO: animaciones-ia $($info.version) (versión completa) instalada. Cierra y vuelve a abrir Claude para usarla (/animaciones-ia:preparar)." 0 }
+    if ($v -eq $info.version) { Salir "LISTO: animaciones-ia $($info.version) (versión mejorada) instalada. Cierra y vuelve a abrir Claude para usarla (/animaciones-ia:preparar)." 0 }
     Write-Output "DESCARGADO: animaciones-ia $($info.version) en $destino, pero Claude no la tomó sola. $err"
 } else {
     Write-Output "DESCARGADO: animaciones-ia $($info.version) en $destino"
