@@ -220,4 +220,4 @@ if ($hayClaude) {
 } else {
     Write-Output "DESCARGADO: animaciones-ia $($info.version) en $destino"
 }
-Write-Output "FALTA_REGISTRAR: en Claude escribe  /plugin marketplace remove $MK  luego  /plugin marketplace add $destino  y luego  /plugin install $PLUGIN"
+Write-Output "FALTA_REGISTRAR: en una terminal corre  claude plugin marketplace remove $MK  luego  claude plugin marketplace add `"$destino`"  y luego  claude plugin install $PLUGIN"
