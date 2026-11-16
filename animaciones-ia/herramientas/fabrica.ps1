@@ -36,7 +36,12 @@ function Ahora { (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss') }
 
 # Identificador de esta PC (no es personal: un resumen de nombre de equipo + usuario)
 $sha = [Security.Cryptography.SHA256]::Create()
-$maquina = -join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes("$env:COMPUTERNAME|$env:USERNAME"))[0..7] | ForEach-Object { $_.ToString('x2') })
+$archMaquina = Join-Path $datos 'maquina.txt'     # se guarda la primera vez: si el nombre del equipo cambia, sigue contando como la misma PC
+if ((Test-Path $archMaquina) -and ((Get-Content $archMaquina -Raw).Trim().Length -eq 16)) { $maquina = (Get-Content $archMaquina -Raw).Trim() }
+else {
+    $maquina = -join ($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes("$env:COMPUTERNAME|$env:USERNAME"))[0..7] | ForEach-Object { $_.ToString('x2') })
+    try { Set-Content -Path $archMaquina -Value $maquina -NoNewline -Encoding ASCII } catch {}
+}
 
 function Pedir($params, $intentos = 3, $espera = 360) {
     $q = ($params.GetEnumerator() | ForEach-Object { "$($_.Key)=$([Uri]::EscapeDataString([string]$_.Value))" }) -join '&'

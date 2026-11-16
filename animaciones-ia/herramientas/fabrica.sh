@@ -87,9 +87,13 @@ if ! command -v osascript >/dev/null 2>&1 && ! command -v python3 >/dev/null 2>&
 fi
 
 # Identificador de esta computadora (no es personal: un resumen de nombre de equipo + usuario)
-NOMBRE_EQUIPO="$(scutil --get ComputerName 2>/dev/null || hostname 2>/dev/null)"
-MAQUINA="$(printf '%s|%s' "$NOMBRE_EQUIPO" "${USER:-$(id -un)}" | shasum -a 256 2>/dev/null | cut -c1-16)"
-[ -n "$MAQUINA" ] || MAQUINA="$(printf '%s|%s' "$NOMBRE_EQUIPO" "${USER:-$(id -un)}" | sha256sum | cut -c1-16)"
+# Se guarda la primera vez: en computadoras en la nube (Muse) el nombre del equipo cambia al reiniciarse y no debe contar como otra PC.
+if [ -s "$DATOS/maquina.txt" ]; then MAQUINA="$(head -c 16 "$DATOS/maquina.txt")"; else
+  NOMBRE_EQUIPO="$(scutil --get ComputerName 2>/dev/null || hostname 2>/dev/null)"
+  MAQUINA="$(printf '%s|%s' "$NOMBRE_EQUIPO" "${USER:-$(id -un)}" | shasum -a 256 2>/dev/null | cut -c1-16)"
+  [ -n "$MAQUINA" ] || MAQUINA="$(printf '%s|%s' "$NOMBRE_EQUIPO" "${USER:-$(id -un)}" | sha256sum | cut -c1-16)"
+  printf '%s' "$MAQUINA" > "$DATOS/maquina.txt" 2>/dev/null
+fi
 
 # pedir SALIDA INTENTOS ESPERA clave=valor…  → deja la respuesta del servidor en SALIDA
 pedir() {
